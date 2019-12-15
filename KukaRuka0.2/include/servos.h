@@ -1,0 +1,40 @@
+#ifndef __MY_SERVOS
+#define __MY_SERVOS
+
+#define PIN_SERVOS_CONTROL 4
+#define HARDWARE_SERVOS_COUNT 6
+#define SETTINGS_SEND_DELAY 200 // microseconds
+#define SETTINGS_ACCURACITY 0x18 // units (1 unit for 0.29 degrees)
+#define HARDWARE_SERVOS_BAUDRATE 1000000    // Baud rate speed for Dynamixels
+#define HAND_ENABLED_POS 520
+#define TIME_FOR_ERROR_OUT 3000
+
+enum HandTypes {
+  HTCLAW, HTDRILL, HTLASERPOINTER
+};
+
+enum Anims {
+  ANIMINIT, ANIMREADY, 
+  ANIMTOGET, ANIMAFTERGET, 
+  ANIMCHECK, ANIMCHECKED, 
+  ANIMTORED, ANIMAFTERRED, 
+  ANIMTOGREEN, ANIMAFTERGREEN,
+  ANIMTOBLUE, ANIMAFTERBLUE,
+  ANIMTOYELLOW, ANIMAFTERYELLOW,
+  ANIMHELLOREADY, ANIMHELLO,
+  ANIMTOQR1, ANIMAFTERQR1, 
+  ANIMTOQR2, ANIMAFTERQR2,
+  ANIMTOBC1, ANIMAFTERBC1, 
+  ANIMTOBC2, ANIMAFTERBC2
+};
+
+bool ServosHandCheckHall();
+bool ServosAllIsReady();
+void ServosSetPoses(int pos, uint8_t spd = 2);
+void ServosAnim(uint8_t anim, int forceSpeed = -1);
+void ServosHandSetType(HandTypes type);
+bool ServosHandIsReady();
+void ServosHandSetEnable(uint8_t pos = 2, uint8_t spd = 1);
+void ServosInit();
+
+#endif
