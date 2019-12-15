@@ -85,6 +85,34 @@ uint16_t ServosPoses[][6] = {
   {280, 491, 551, 179, 500, 247}
 };
 const uint8_t ServosAnimCount = 24;
+uint8_t ServosAnims[][2] = {
+// count, spd
+  {2, 2},
+  {1, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {1, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {1, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2},
+  {2, 2}
+};
+/* OLD 
 uint8_t ServosAnims[][3] = {
   // start, stop, spd
   {0, 1, 2},
@@ -112,6 +140,7 @@ uint8_t ServosAnims[][3] = {
   {41, 42, 2},
   {43, 44, 2}
 };
+/* */
 
 uint32_t handEnabledSwitchTime = 0;
 bool handEnabled = false;
@@ -159,8 +188,23 @@ void ServosSetPoses(int pos, uint8_t spd = 2) {
   }
 }
 
+void ServosAnim(uint8_t anim, int forceSpeed = -1) {
+  if (forceSpeed < -1 || forceSpeed >= ServosSpeedCount)
+    forceSpeed = -1;
+  uint8_t posStart = 0;
+  for (uint8_t i = 0; i < anim; i++)
+    posStart += ServosAnims[i][0];
+  uint8_t posEnd = posStart + ServosAnims[anim][0];
+  for (uint8_t pos = posStart; pos < posEnd; pos++) {
+    ServosSetPoses(pos, (forceSpeed == -1) ? ServosAnims[anim][2] : forceSpeed);
+    while(!ServosAllIsReady());
+  }
+  delay(200);
+}
+
+/*
 void ServosAnim(uint8_t anim, int forceSpeed = -1) {  
-  if (forceSpeed >= ServosSpeedCount || forceSpeed < -1)
+  if (forceSpeed < -1 || forceSpeed >= ServosSpeedCount)
     forceSpeed = -1;
   for (uint8_t pos = ServosAnims[anim][0]; pos <= ServosAnims[anim][1]; pos++) {
     ServosSetPoses(pos, (forceSpeed == -1) ? ServosAnims[anim][2] : forceSpeed);
@@ -169,6 +213,7 @@ void ServosAnim(uint8_t anim, int forceSpeed = -1) {
   while(!ServosAllIsReady()) ;
   delay(200);
 }
+*/
 
 void ServosHandSetType(HandTypes type) {
   switch (handType) {
