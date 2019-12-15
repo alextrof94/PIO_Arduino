@@ -1,1 +1,1 @@
-It is project for Night Bike Leds for safe riding.
+It is project for Bike Leds for safe NIGHT riding.
