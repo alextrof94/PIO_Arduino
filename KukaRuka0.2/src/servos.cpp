@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <servos.h>
 #include <main.h>
-#include "Dynamixel_Serial.h"
+#include "Dynamixel_Serial.h" 
 
 const uint8_t ServosSpeedCount = 5;
 uint16_t ServosSpeeds[] = {
