@@ -4,11 +4,11 @@
 #include "LiquidCrystal_I2C.h"
 LiquidCrystal_I2C lcd(0x3F,20,4);
 
-void LcdPrint(char* str) {
+void lcdPrint(char* str) {
   lcd.print(str);
 }
 
-void LcdInit() {
+void lcdInit() {
   lcd.init();
   lcd.backlight();
   lcd.setCursor(0,0);

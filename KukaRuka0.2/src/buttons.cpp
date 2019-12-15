@@ -46,7 +46,7 @@ SIGNAL(TIMER0_COMPA_vect) {
   }
 }
 
-void ButtonsInit() { 
+void buttonsInit() { 
   btns[0].pin = A15;
   btns[0].inversed = true;
   btns[0].pullup = true;

@@ -5,7 +5,7 @@ enum ExternalTypes {
   ETNONE = 0, ETDISPENSER = 1
 };
 
-void ExternalCheck();
-void ExternalInit();
+void externalCheck();
+void externalInit();
 
 #endif 

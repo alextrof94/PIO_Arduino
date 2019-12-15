@@ -3,16 +3,16 @@
 #include <main.h>
 #include "Dynamixel_Serial.h" 
 
-const uint8_t ServosSpeedCount = 5;
-uint16_t ServosSpeeds[] = {
+const uint8_t servosSpeedCount = 5;
+uint16_t servosSpeeds[] = {
   0x005, 0x025, 0x050, 0x100, 0x3FF
 };
-const uint8_t ServosPosCount = 45;
-int ServosPosesNeed[6];
-uint8_t ServosLastPos = 255;
-bool ServosReady[6] = {1,1,1,1,1,1};
-uint32_t ServosSwitchTime[6] = {0,0,0,0,0,0};
-uint16_t ServosPoses[][6] = {
+const uint8_t servosPosCount = 45;
+int servosPosesNeed[6];
+uint8_t servosLastPos = 255;
+bool servosReady[6] = {1,1,1,1,1,1};
+uint32_t servosSwitchTime[6] = {0,0,0,0,0,0};
+uint16_t servosPoses[][6] = {
   // delay, servos
   // init 0 - 1
   {525, 700, 497, 143, 500, 315},
@@ -84,8 +84,8 @@ uint16_t ServosPoses[][6] = {
   {491, 449, 267, 181, 600, 265},
   {280, 491, 551, 179, 500, 247}
 };
-const uint8_t ServosAnimCount = 24;
-uint8_t ServosAnims[][2] = {
+const uint8_t servosAnimCount = 24;
+uint8_t servosAnims[][2] = {
 // count, spd
   {2, 2},
   {1, 2},
@@ -146,24 +146,24 @@ uint32_t handEnabledSwitchTime = 0;
 bool handEnabled = false;
 HandTypes handType = HTCLAW;
 
-bool ServosHandCheckHall() {
+bool servosHandCheckHall() {
   return (digitalRead(PIN_HAND_HALL0) || digitalRead(PIN_HAND_HALL1));
 }
 
-bool ServosAllIsReady() {
+bool servosAllIsReady() {
   int pos;
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++) {
     pos = (int)Dynamixel.readPosition(i + 1);
     delayMicroseconds(SETTINGS_SEND_DELAY);
-    ServosReady[i] = (abs(pos - ServosPosesNeed[i]) <= SETTINGS_ACCURACITY);
+    servosReady[i] = (abs(pos - servosPosesNeed[i]) <= SETTINGS_ACCURACITY);
   } 
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++) {
-    Dynamixel.ledState(i + 1, !ServosReady[i]);
+    Dynamixel.ledState(i + 1, !servosReady[i]);
     delayMicroseconds(SETTINGS_SEND_DELAY);
   }
   
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++) {
-    if (!ServosReady[i]) {
+    if (!servosReady[i]) {
       digitalWrite(PIN_LED, 0);
       return false;
     }
@@ -172,32 +172,32 @@ bool ServosAllIsReady() {
   return true;
 }
 
-void ServosSetPoses(int pos, uint8_t spd = 2) {
-  if (pos >= ServosPosCount)
+void servosSetPoses(int pos, uint8_t spd = 2) {
+  if (pos >= servosPosCount)
     return;
-  if (spd > ServosSpeedCount)
+  if (spd > servosSpeedCount)
     return;
   if (pos == -1) ; // do something service
 
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++)
-    ServosPosesNeed[i] = ServosPoses[pos][i];
+    servosPosesNeed[i] = servosPoses[pos][i];
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++){
-    ServosSwitchTime[i] = millis() + TIME_FOR_ERROR_OUT;
-    Dynamixel.servo(i + 1, ServosPoses[pos][i], ServosSpeeds[spd]);
+    servosSwitchTime[i] = millis() + TIME_FOR_ERROR_OUT;
+    Dynamixel.servo(i + 1, servosPoses[pos][i], servosSpeeds[spd]);
     delayMicroseconds(SETTINGS_SEND_DELAY);
   }
 }
 
-void ServosAnim(uint8_t anim, int forceSpeed = -1) {
-  if (forceSpeed < -1 || forceSpeed >= ServosSpeedCount)
+void servosAnim(uint8_t anim, int forceSpeed = -1) {
+  if (forceSpeed < -1 || forceSpeed >= servosSpeedCount)
     forceSpeed = -1;
   uint8_t posStart = 0;
   for (uint8_t i = 0; i < anim; i++)
-    posStart += ServosAnims[i][0];
-  uint8_t posEnd = posStart + ServosAnims[anim][0];
+    posStart += servosAnims[i][0];
+  uint8_t posEnd = posStart + servosAnims[anim][0];
   for (uint8_t pos = posStart; pos < posEnd; pos++) {
-    ServosSetPoses(pos, (forceSpeed == -1) ? ServosAnims[anim][2] : forceSpeed);
-    while(!ServosAllIsReady());
+    servosSetPoses(pos, (forceSpeed == -1) ? servosAnims[anim][2] : forceSpeed);
+    while(!servosAllIsReady());
   }
   delay(200);
 }
@@ -215,7 +215,7 @@ void ServosAnim(uint8_t anim, int forceSpeed = -1) {
 }
 */
 
-void ServosHandSetType(HandTypes type) {
+void servosHandSetType(HandTypes type) {
   switch (handType) {
     case HTCLAW: 
       Dynamixel.setMode(7, 1, 0x001, 0xFFF);
@@ -229,7 +229,7 @@ void ServosHandSetType(HandTypes type) {
   delayMicroseconds(SETTINGS_SEND_DELAY);
 }
 
-bool ServosHandIsReady(){
+bool servosHandIsReady(){
   bool r = false;
   int pos;
   
@@ -266,7 +266,7 @@ bool ServosHandIsReady(){
   return r;
 }
 
-void ServosHandSetEnable(uint8_t pos = 2, uint8_t spd = 1){
+void servosHandSetEnable(uint8_t pos = 2, uint8_t spd = 1){
   handEnabledSwitchTime = millis() + TIME_FOR_ERROR_OUT;
   if (pos > 2)
     return;
@@ -277,9 +277,9 @@ void ServosHandSetEnable(uint8_t pos = 2, uint8_t spd = 1){
   switch (handType) {
     case HTCLAW: 
       if (handEnabled)
-        Dynamixel.servo(7, HAND_ENABLED_POS, ServosSpeeds[spd]);
+        Dynamixel.servo(7, HAND_ENABLED_POS, servosSpeeds[spd]);
       else
-        Dynamixel.servo(7, 600, ServosSpeeds[spd]);
+        Dynamixel.servo(7, 600, servosSpeeds[spd]);
       break;
     case HTDRILL:
       if (handEnabled)
@@ -291,12 +291,12 @@ void ServosHandSetEnable(uint8_t pos = 2, uint8_t spd = 1){
       break;
   }
   delayMicroseconds(SETTINGS_SEND_DELAY);
-  ServosHandIsReady();
+  servosHandIsReady();
   delay(100);
 }
 
 
-void ServosInit() {
+void servosInit() {
   pinMode(PIN_HAND_HALL0, INPUT);
   pinMode(PIN_HAND_HALL1, INPUT);
   while (millis() < 1000) ;
@@ -326,9 +326,9 @@ void ServosInit() {
     Dynamixel.ledState(i + 1, 1);
     delayMicroseconds(SETTINGS_SEND_DELAY);
   }
-  ServosAnim(0);
-  ServosAnim(1);
-  ServosHandSetEnable(0);
+  servosAnim(0);
+  servosAnim(1);
+  servosHandSetEnable(0);
   for (int i = 0; i < HARDWARE_SERVOS_COUNT; i++){
     Dynamixel.ledState(i + 1, 0);
     delayMicroseconds(SETTINGS_SEND_DELAY);

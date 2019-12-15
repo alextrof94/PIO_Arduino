@@ -6,9 +6,9 @@
 const uint8_t externalTypesCount = 2;
 
 ExternalTypes externalType = ETDISPENSER;
-bool ExternalReady = false;
+bool externalReady = false;
 
-void ExternalCheck() {
+void externalCheck() {
   if (PORT_EXTERNAL.available()) {
     char cmd = PORT_EXTERNAL.read();
     switch (cmd) {
@@ -22,7 +22,7 @@ void ExternalCheck() {
 		}
         break;
       case 'r': // ready?
-        ExternalReady = (PORT_EXTERNAL.read() == 1);
+        externalReady = (PORT_EXTERNAL.read() == 1);
         break;
       case 'a': // additional
         // char a = EXT.read();
@@ -31,10 +31,10 @@ void ExternalCheck() {
     }
   }
   if (PORT_EXTERNAL.available())
-    ExternalCheck(); // recursion for read all data
+    externalCheck(); // recursion for read all data
 }
 
 
-void ExternalInit() {
+void externalInit() {
   PORT_EXTERNAL.begin(57600);
 }

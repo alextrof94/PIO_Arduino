@@ -28,13 +28,13 @@ enum Anims {
   ANIMTOBC2, ANIMAFTERBC2
 };
 
-bool ServosHandCheckHall();
-bool ServosAllIsReady();
-void ServosSetPoses(int pos, uint8_t spd = 2);
-void ServosAnim(uint8_t anim, int forceSpeed = -1);
-void ServosHandSetType(HandTypes type);
-bool ServosHandIsReady();
-void ServosHandSetEnable(uint8_t pos = 2, uint8_t spd = 1);
-void ServosInit();
+bool servosHandCheckHall();
+bool servosAllIsReady();
+void servosSetPoses(int pos, uint8_t spd = 2);
+void servosAnim(uint8_t anim, int forceSpeed = -1);
+void servosHandSetType(HandTypes type);
+bool servosHandIsReady();
+void servosHandSetEnable(uint8_t pos = 2, uint8_t spd = 1);
+void servosInit();
 
 #endif
