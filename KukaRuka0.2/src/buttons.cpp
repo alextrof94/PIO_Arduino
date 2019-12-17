@@ -1,19 +1,10 @@
 #include <Arduino.h>
 #include <main.h>
+#include <servos.h>
+#include <buttons.h>
+#include "Dynamixel_Serial.h" 
 
 extern uint8_t mode;
-
-struct Button {
-  uint8_t pin = 2;
-  bool inversed = true;
-  bool pullup = true;
-  bool isPressed = false;
-  bool isPressedOld = false;
-  uint32_t pressTime;
-  uint32_t releaseTime;
-  bool pressProcessed = false;
-  bool releaseProcessed = false;
-};
 
 const uint8_t btnsCount = 1;
 Button btns[btnsCount];
@@ -34,15 +25,6 @@ SIGNAL(TIMER0_COMPA_vect) {
       btns[i].pressProcessed = false;
     }
     btns[i].isPressedOld = btns[i].isPressed;
-  }
-  
-  for (uint8_t i = 0; i < btnsCount; i++) {
-    if (!btns[i].pressProcessed){
-      if (btns[i].releaseTime - btns[i].pressTime > 1000)
-        mode = 2;
-      else
-        mode = (mode == 0) ? 1 : 0;
-    }
   }
 }
 

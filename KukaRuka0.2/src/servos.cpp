@@ -27,12 +27,12 @@ uint16_t servosPoses[][6] = {
   {263, 499, 454, 151, 479, 269},
   // check 7-8
   {430, 418, 225, 233, 399, 222},
-  {422, 209, 202, 164, 497, 332},
+  {491, 250, 160, 263, 542, 157},
   // checked 9
   {430, 418, 225, 233, 399, 222},
   // red 10-11
-  {613, 500, 556, 338, 465, 203},
-  {612, 346, 553, 334, 464, 246},
+  {613, 500, 480, 338, 465, 203},
+  {612, 400, 480, 334, 464, 246},
   // red after 12-13
   {612, 346, 553, 334, 464, 246},
   {613, 500, 556, 338, 465, 203},
@@ -49,35 +49,42 @@ uint16_t servosPoses[][6] = {
   {457, 389, 501, 254, 495, 262},
   {457, 500, 502, 263, 498, 227},
   // yellow 22-23
-  {395, 500, 483, 336, 513, 215},
-  {396, 352, 481, 330, 508, 248},
+  {395, 500, 480, 336, 513, 215},
+  {396, 390, 480, 350, 508, 248},
   // yellow after 24-25
-  {396, 352, 481, 330, 508, 248},
-  {395, 500, 483, 336, 513, 215},
+  {396, 390, 481, 350, 508, 248},
+  {395, 450, 483, 336, 513, 215},
   // hello ready 26
   {512, 512, 512, 512, 256, 512},
   // hello 27-28
   {512, 512, 512, 512, 256, 700},
   {512, 512, 512, 512, 256, 300},
   // qr1 29-30
+  {383, 506, 288, 144, 417, 295},
+  {399, 709, 481, 44, 454, 352},
   {502, 455, 771, 173, 432, 258},
   {521, 342, 774, 181, 329, 253},
   // qr1 after 
   {514, 388, 768, 180, 378, 255},
   {664, 501, 513, 153, 520, 256},
   // qr2 
+  {383, 506, 288, 144, 417, 295},
+  {399, 709, 481, 44, 454, 352},
+  {463, 468, 705, 194, 511, 170},
   {337, 457, 858, 126, 427, 251},
   {357, 309, 878, 91, 304, 208},
   // qr2 after 
   {352, 342, 896, 115, 342, 185},
-  {589, 504, 517, 135, 482, 241},
-  // bc1 
+  {589, 504, 517, 200, 482, 241},
+  // bc1
+  {383, 506, 288, 144, 417, 295},
   {571, 535, 319, 136, 483, 256},
   {611, 314, 162, 108, 716, 228},
   // bc1 after 
   {621, 404, 141, 160, 607, 160},
   {424, 514, 454, 140, 510, 274},
   // bc2 
+  {383, 506, 288, 144, 417, 295},
   {505, 512, 286, 177, 544, 296},
   {487, 364, 266, 176, 658, 270},
   // bc2 after 
@@ -85,32 +92,33 @@ uint16_t servosPoses[][6] = {
   {280, 491, 551, 179, 500, 247}
 };
 const uint8_t servosAnimCount = 24;
-uint8_t servosAnims[][2] = {
-// count, spd
-  {2, 2},
-  {1, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {1, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {1, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2},
-  {2, 2}
+uint16_t accuracity = SETTINGS_ACCURACITY_N;
+uint8_t servosAnims[][3] = {
+// frameCount, spd, accuracity
+  {2, 1, SETTINGS_ACCURACITY_L},
+  {1, 1, SETTINGS_ACCURACITY_L},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {1, 2, SETTINGS_ACCURACITY_N},
+  {2, 3, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {1, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {4, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {5, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {3, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
+  {3, 2, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N}
 };
 /* OLD 
 uint8_t ServosAnims[][3] = {
@@ -155,7 +163,7 @@ bool servosAllIsReady() {
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++) {
     pos = (int)Dynamixel.readPosition(i + 1);
     delayMicroseconds(SETTINGS_SEND_DELAY);
-    servosReady[i] = (abs(pos - servosPosesNeed[i]) <= SETTINGS_ACCURACITY);
+    servosReady[i] = (abs(pos - servosPosesNeed[i]) <= accuracity);
   } 
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++) {
     Dynamixel.ledState(i + 1, !servosReady[i]);
@@ -191,12 +199,13 @@ void servosSetPoses(int pos, uint8_t spd = 2) {
 void servosAnim(uint8_t anim, int forceSpeed = -1) {
   if (forceSpeed < -1 || forceSpeed >= servosSpeedCount)
     forceSpeed = -1;
+  accuracity = servosAnims[anim][2];
   uint8_t posStart = 0;
   for (uint8_t i = 0; i < anim; i++)
     posStart += servosAnims[i][0];
   uint8_t posEnd = posStart + servosAnims[anim][0];
   for (uint8_t pos = posStart; pos < posEnd; pos++) {
-    servosSetPoses(pos, (forceSpeed == -1) ? servosAnims[anim][2] : forceSpeed);
+    servosSetPoses(pos, (forceSpeed == -1) ? servosAnims[anim][1] : forceSpeed);
     while(!servosAllIsReady());
   }
   delay(200);
@@ -238,7 +247,7 @@ bool servosHandIsReady(){
       if (handEnabled){
         pos = (int)Dynamixel.readPosition(7);
         delayMicroseconds(SETTINGS_SEND_DELAY);
-        r = (abs(pos - HAND_ENABLED_POS) <= SETTINGS_ACCURACITY);
+        r = (abs(pos - HAND_ENABLED_POS) <= accuracity);
         Dynamixel.ledState(7, !r);
         delayMicroseconds(SETTINGS_SEND_DELAY);
         /*if (!r && millis() > handEnabledSwitchTime) {
@@ -247,7 +256,7 @@ bool servosHandIsReady(){
       } else {
         pos = (int)Dynamixel.readPosition(7);
         delayMicroseconds(SETTINGS_SEND_DELAY);
-        r = (abs(pos - 600) <= SETTINGS_ACCURACITY);
+        r = (abs(pos - 600) <= accuracity);
         Dynamixel.ledState(7, !r);
         delayMicroseconds(SETTINGS_SEND_DELAY);
         /*if (!r && millis() > handEnabledSwitchTime) {
@@ -291,10 +300,23 @@ void servosHandSetEnable(uint8_t pos = 2, uint8_t spd = 1){
       break;
   }
   delayMicroseconds(SETTINGS_SEND_DELAY);
-  servosHandIsReady();
+  while (!servosHandIsReady());
   delay(100);
 }
 
+void servosModeWork() {
+  for (int i = 0; i < HARDWARE_SERVOS_COUNT; i++){
+    Dynamixel.setHoldingTorque(i+1, true);
+    delayMicroseconds(SETTINGS_SEND_DELAY);
+  }
+}
+
+void servosModeOff() {
+  for (int i = 0; i < HARDWARE_SERVOS_COUNT; i++){
+    Dynamixel.setHoldingTorque(i+1, false);
+    delayMicroseconds(SETTINGS_SEND_DELAY);
+  }
+}
 
 void servosInit() {
   pinMode(PIN_HAND_HALL0, INPUT);
@@ -326,8 +348,6 @@ void servosInit() {
     Dynamixel.ledState(i + 1, 1);
     delayMicroseconds(SETTINGS_SEND_DELAY);
   }
-  servosAnim(0);
-  servosAnim(1);
   servosHandSetEnable(0);
   for (int i = 0; i < HARDWARE_SERVOS_COUNT; i++){
     Dynamixel.ledState(i + 1, 0);
