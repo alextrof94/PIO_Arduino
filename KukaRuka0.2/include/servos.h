@@ -3,7 +3,7 @@
 
 #define PIN_SERVOS_CONTROL 4
 #define HARDWARE_SERVOS_COUNT 6
-#define SETTINGS_SEND_DELAY 200 // microseconds
+#define SETTINGS_SEND_DELAY 500 // microseconds
 #define SETTINGS_ACCURACITY_L 0x50
 #define SETTINGS_ACCURACITY_N 0x18
 #define SETTINGS_ACCURACITY_H 0x10 // units (1 unit for 0.29 degrees)

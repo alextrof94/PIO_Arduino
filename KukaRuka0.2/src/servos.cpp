@@ -7,12 +7,12 @@ const uint8_t servosSpeedCount = 5;
 uint16_t servosSpeeds[] = {
   0x005, 0x025, 0x050, 0x100, 0x3FF
 };
-const uint8_t servosPosCount = 45;
+const uint8_t servosPosCount = 52;
 int servosPosesNeed[6];
 uint8_t servosLastPos = 255;
 bool servosReady[6] = {1,1,1,1,1,1};
 uint32_t servosSwitchTime[6] = {0,0,0,0,0,0};
-uint16_t servosPoses[][6] = {
+int servosPoses[][6] = {
   // delay, servos
   // init 0 - 1
   {525, 700, 497, 143, 500, 315},
@@ -31,8 +31,8 @@ uint16_t servosPoses[][6] = {
   // checked 9
   {430, 418, 225, 233, 399, 222},
   // red 10-11
-  {613, 500, 480, 338, 465, 203},
-  {612, 400, 480, 334, 464, 246},
+  {613, 500, 553, 338, 465, 203},
+  {612, 400, 553, 334, 464, 246},
   // red after 12-13
   {612, 346, 553, 334, 464, 246},
   {613, 500, 556, 338, 465, 203},
@@ -152,8 +152,9 @@ uint8_t ServosAnims[][3] = {
 
 uint32_t handEnabledSwitchTimer = 0;
 bool handEnabled = false;
-uint16_t handPoses[2] = {600, 530};
+int handPoses[2] = {600, 530};
 HandTypes handType = HTCLAW;
+int diff = 0;
 
 bool servosHandCheckHall() {
   return (digitalRead(PIN_HAND_HALL0) || digitalRead(PIN_HAND_HALL1));
@@ -164,20 +165,17 @@ bool servosAllIsReady() {
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++) {
     pos = (int)Dynamixel.readPosition(i + 1);
     delayMicroseconds(SETTINGS_SEND_DELAY);
-    servosReady[i] = (abs(pos - servosPosesNeed[i]) <= accuracity);
+    diff = (pos - servosPosesNeed[i] >= 0) ? pos - servosPosesNeed[i] : servosPosesNeed[i] - pos;
+    //PORT_PC.print(i); PORT_PC.print(" SERVO DIFF = "); PORT_PC.println(diff);
+    servosReady[i] = (diff >= 0 && diff <= accuracity);
   } 
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++) {
     Dynamixel.ledState(i + 1, !servosReady[i]);
     delayMicroseconds(SETTINGS_SEND_DELAY);
-  }
-  
-  for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++) {
-    if (!servosReady[i]) {
-      digitalWrite(PIN_LED, 0);
+    if (!servosReady[i])
       return false;
-    }
   }
-  digitalWrite(PIN_LED, 1);
+  //digitalWrite(PIN_LED, 1);
   return true;
 }
 
@@ -186,6 +184,7 @@ void servosSetPoses(int pos, uint8_t spd = 2) {
     return;
   if (spd > servosSpeedCount)
     return;
+  PORT_PC.print("SETTING POSE "); PORT_PC.println(pos);
   if (pos == -1) ; // do something service
 
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++)
@@ -229,6 +228,13 @@ void servosHandSetType(HandTypes type) {
   switch (handType) {
     case HTCLAW: 
       Dynamixel.setMode(7, 1, 0x001, 0xFFF);
+      delayMicroseconds(SETTINGS_SEND_DELAY);
+      Dynamixel.setHoldingTorque(7, 0xFFFF);
+      delayMicroseconds(SETTINGS_SEND_DELAY);
+      Dynamixel.setMaxTorque(7, 0xFFFF);
+      delayMicroseconds(SETTINGS_SEND_DELAY);
+      Dynamixel.setPunch(7, 0x8);
+      delayMicroseconds(SETTINGS_SEND_DELAY);
       break;
     case HTDRILL:
       Dynamixel.setMode(7, 0, 0, 0);
@@ -247,11 +253,22 @@ bool servosHandIsReady(){
     case HTCLAW: 
       pos = (int)Dynamixel.readPosition(7);
       delayMicroseconds(SETTINGS_SEND_DELAY);
-      r = (abs(pos - handPoses[handEnabled]) <= 30);
+      if (pos - handPoses[handEnabled] >= 0){
+        diff = pos - handPoses[handEnabled];
+        PORT_PC.print("+ ");
+      }
+      else {
+        diff = handPoses[handEnabled] - pos;
+        PORT_PC.print("- ");
+      }
+      r = (diff >= 0 && diff <= SETTINGS_ACCURACITY_H);
       Dynamixel.ledState(7, !r);
       delayMicroseconds(SETTINGS_SEND_DELAY);
+      if (!r){
+        PORT_PC.print(pos); PORT_PC.print(" / ");  PORT_PC.print(handPoses[handEnabled]); PORT_PC.print(" DIFF: "); PORT_PC.println(diff);
+      }
       if (!r && millis() > handEnabledSwitchTimer) {
-        PORT_PC.print(millis()); PORT_PC.print(" "); PORT_PC.print(pos); PORT_PC.print(" / "); PORT_PC.println(handPoses[handEnabled]);
+        PORT_PC.print(millis()); PORT_PC.print(" "); PORT_PC.print(pos); PORT_PC.print(" / ");  PORT_PC.print(handPoses[handEnabled]); PORT_PC.print(" "); PORT_PC.println(diff);
         handEnabledSwitchTimer = millis() + TIME_FOR_ERROR_OUT;
       }
       break;
@@ -288,8 +305,8 @@ void servosHandSetEnable(uint8_t pos = 2, uint8_t spd = 1){
       break;
   }
   delayMicroseconds(SETTINGS_SEND_DELAY);
-  while (!servosHandIsReady());
-  delay(100);
+  //while (!servosHandIsReady());
+  delay(1000);
 }
 
 void servosModeWork() {

@@ -34,7 +34,7 @@ void read74HC165(){
       }
       btnsHC[i].isPressedOld = btnsHC[i].isPressed;
   }
-  PORT_PC.println();
+  //PORT_PC.println();
 }
 
 // Interrupt by timer 

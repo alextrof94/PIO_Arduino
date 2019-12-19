@@ -26,7 +26,7 @@ void modeManual() {
     servosAnim(ANIMREADY);
     lcdClear(mode);
   }
-  for (uint8_t i = 0; i < modeCount; i++){
+  for (uint8_t i = 0; i < 8; i++){
     if (!btnsHC[i].pressProcessed){
       btnsHC[i].pressProcessed = true;
       switch (i){
@@ -135,13 +135,13 @@ void modeWork() {
   servosHandSetEnable(0);
   if (msg[1] == '1') {
     // barcode 
-    if (msg[2] == '9')
+    if (msg[2] == '1')
       servosAnim(ANIMAFTERBC1);
     else
       servosAnim(ANIMAFTERBC2);
   } else if (msg[1] == '2') {
     // qr
-    if (msg[2] == 'q')
+    if (msg[2] == '1')
       servosAnim(ANIMAFTERQR1);
     else
       servosAnim(ANIMAFTERQR2);
