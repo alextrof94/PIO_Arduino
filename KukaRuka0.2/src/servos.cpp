@@ -101,7 +101,7 @@ uint8_t servosAnims[][3] = {
   {2, 2, SETTINGS_ACCURACITY_N},
   {2, 2, SETTINGS_ACCURACITY_N},
   {1, 2, SETTINGS_ACCURACITY_N},
-  {2, 3, SETTINGS_ACCURACITY_N},
+  {2, 2, SETTINGS_ACCURACITY_N},
   {2, 2, SETTINGS_ACCURACITY_N},
   {2, 2, SETTINGS_ACCURACITY_N},
   {2, 2, SETTINGS_ACCURACITY_N},
@@ -110,7 +110,7 @@ uint8_t servosAnims[][3] = {
   {2, 2, SETTINGS_ACCURACITY_N},
   {2, 2, SETTINGS_ACCURACITY_N},
   {1, 2, SETTINGS_ACCURACITY_N},
-  {2, 2, SETTINGS_ACCURACITY_N},
+  {2, 4, SETTINGS_ACCURACITY_N},
   {4, 2, SETTINGS_ACCURACITY_N},
   {2, 2, SETTINGS_ACCURACITY_N},
   {5, 2, SETTINGS_ACCURACITY_N},
@@ -150,8 +150,9 @@ uint8_t ServosAnims[][3] = {
 };
 /* */
 
-uint32_t handEnabledSwitchTime = 0;
+uint32_t handEnabledSwitchTimer = 0;
 bool handEnabled = false;
+uint16_t handPoses[2] = {600, 530};
 HandTypes handType = HTCLAW;
 
 bool servosHandCheckHall() {
@@ -244,24 +245,14 @@ bool servosHandIsReady(){
   
   switch (handType) {
     case HTCLAW: 
-      if (handEnabled){
-        pos = (int)Dynamixel.readPosition(7);
-        delayMicroseconds(SETTINGS_SEND_DELAY);
-        r = (abs(pos - HAND_ENABLED_POS) <= accuracity);
-        Dynamixel.ledState(7, !r);
-        delayMicroseconds(SETTINGS_SEND_DELAY);
-        /*if (!r && millis() > handEnabledSwitchTime) {
-          PC.print(pos); PC.println(" / 532");
-        }*/
-      } else {
-        pos = (int)Dynamixel.readPosition(7);
-        delayMicroseconds(SETTINGS_SEND_DELAY);
-        r = (abs(pos - 600) <= accuracity);
-        Dynamixel.ledState(7, !r);
-        delayMicroseconds(SETTINGS_SEND_DELAY);
-        /*if (!r && millis() > handEnabledSwitchTime) {
-          PC.print(pos); PC.println(" / 600");
-        }*/
+      pos = (int)Dynamixel.readPosition(7);
+      delayMicroseconds(SETTINGS_SEND_DELAY);
+      r = (abs(pos - handPoses[handEnabled]) <= 30);
+      Dynamixel.ledState(7, !r);
+      delayMicroseconds(SETTINGS_SEND_DELAY);
+      if (!r && millis() > handEnabledSwitchTimer) {
+        PORT_PC.print(millis()); PORT_PC.print(" "); PORT_PC.print(pos); PORT_PC.print(" / "); PORT_PC.println(handPoses[handEnabled]);
+        handEnabledSwitchTimer = millis() + TIME_FOR_ERROR_OUT;
       }
       break;
     case HTDRILL:
@@ -276,7 +267,7 @@ bool servosHandIsReady(){
 }
 
 void servosHandSetEnable(uint8_t pos = 2, uint8_t spd = 1){
-  handEnabledSwitchTime = millis() + TIME_FOR_ERROR_OUT;
+  handEnabledSwitchTimer = millis() + TIME_FOR_ERROR_OUT;
   if (pos > 2)
     return;
   if (pos == 2)
@@ -285,10 +276,7 @@ void servosHandSetEnable(uint8_t pos = 2, uint8_t spd = 1){
 
   switch (handType) {
     case HTCLAW: 
-      if (handEnabled)
-        Dynamixel.servo(7, HAND_ENABLED_POS, servosSpeeds[spd]);
-      else
-        Dynamixel.servo(7, 600, servosSpeeds[spd]);
+      Dynamixel.servo(7, handPoses[handEnabled], servosSpeeds[spd]);
       break;
     case HTDRILL:
       if (handEnabled)

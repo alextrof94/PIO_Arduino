@@ -8,7 +8,6 @@
 #define SETTINGS_ACCURACITY_N 0x18
 #define SETTINGS_ACCURACITY_H 0x10 // units (1 unit for 0.29 degrees)
 #define HARDWARE_SERVOS_BAUDRATE 1000000    // Baud rate speed for Dynamixels
-#define HAND_ENABLED_POS 520
 #define TIME_FOR_ERROR_OUT 3000
 
 enum HandTypes {
