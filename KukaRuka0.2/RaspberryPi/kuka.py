@@ -94,9 +94,6 @@ def recognize():
     bcD = "0000000000"
     barcodes = pyzbar.decode(img)
     for bc in barcodes:
-        (x, y, w, h) = bc.rect
-        #cv2.rectangle(img, (x,y), (x+w, y+h), (0,0,255), 2)
-       
         bcData = bc.data.decode("utf8")
         bcType = bc.type
         if bcType == "QRCODE":
@@ -104,14 +101,60 @@ def recognize():
         else:
             bcT = "1"
         bcD = bcData
-        print bcType, bcData
     if len(bcD) > 10:
         bcD = bcD[0] + bcD[1] + bcD[2] + bcD[3] + bcD[4] + bcD[5] + bcD[6] + bcD[7] + bcD[8] + bcD[9]
     while len(bcD) < 10:
         bcD = "0" + bcD
 
+    flipped = cv2.flip(img, 0)
+    barcodes = pyzbar.decode(flipped)
+    for bc in barcodes:
+        bcData = bc.data.decode("utf8")
+        bcType = bc.type
+        if bcType == "QRCODE":
+            bcT = "2"
+        else:
+            bcT = "1"
+        bcD = bcData
+    if len(bcD) > 10:
+        bcD = bcD[0] + bcD[1] + bcD[2] + bcD[3] + bcD[4] + bcD[5] + bcD[6] + bcD[7] + bcD[8] + bcD[9]
+    while len(bcD) < 10:
+        bcD = "0" + bcD
+
+    flipped = cv2.flip(img, -1)
+    barcodes = pyzbar.decode(flipped)
+    for bc in barcodes:
+        bcData = bc.data.decode("utf8")
+        bcType = bc.type
+        if bcType == "QRCODE":
+            bcT = "2"
+        else:
+            bcT = "1"
+        bcD = bcData
+    if len(bcD) > 10:
+        bcD = bcD[0] + bcD[1] + bcD[2] + bcD[3] + bcD[4] + bcD[5] + bcD[6] + bcD[7] + bcD[8] + bcD[9]
+    while len(bcD) < 10:
+        bcD = "0" + bcD
+        
+    flipped = cv2.flip(img, 1)
+    barcodes = pyzbar.decode(flipped)
+    for bc in barcodes:
+        bcData = bc.data.decode("utf8")
+        bcType = bc.type
+        if bcType == "QRCODE":
+            bcT = "2"
+        else:
+            bcT = "1"
+        bcD = bcData
+    if len(bcD) > 10:
+        bcD = bcD[0] + bcD[1] + bcD[2] + bcD[3] + bcD[4] + bcD[5] + bcD[6] + bcD[7] + bcD[8] + bcD[9]
+    while len(bcD) < 10:
+        bcD = "0" + bcD
+
+    print bcT, bcD
+
     # get color of center region
-    cropped = img[height/2-20:height/2+20, width/2-20:width/2+20]
+    cropped = img[height/2+50:height/2+150, width/2-20:width/2+20]
     if display:
         cv2.imshow("Cropped", cropped)
     data = np.reshape(cropped, (-1,3))
@@ -123,6 +166,7 @@ def recognize():
     g = centers[0][1].astype(np.int32)
     r = centers[0][2].astype(np.int32)
     print "rgb: ", r, g, b, getColor(r,g,b)
+    
     hsvL = np.array([0,0,0])
     hsvD = np.array([0,0,0])
     hsvL[0],hsvL[1],hsvL[2] = rgbToHsv(r,g,b)
