@@ -28,7 +28,8 @@ def detectShapes(c):
 
 def getShapes(image):
     resized = imutils.resize(image, width=100)
-    cv2.imshow("Resized", resized)
+    if display:
+        cv2.imshow("Resized", resized)
     ratio = image.shape[0] / float(resized.shape[0])
     blurred = cv2.GaussianBlur(resized, (5, 5), 0)
     gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
@@ -111,7 +112,8 @@ def recognize():
 
     # get color of center region
     cropped = img[height/2-20:height/2+20, width/2-20:width/2+20]
-    cv2.imshow("Cropped", cropped)
+    if display:
+        cv2.imshow("Cropped", cropped)
     data = np.reshape(cropped, (-1,3))
     data = np.float32(data)
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
@@ -151,7 +153,8 @@ def recognize():
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     hsvmask = cv2.inRange(hsv, (hsvL[0], hsvL[1], hsvL[2]), (hsvD[0], hsvD[1], hsvD[2]))
     hued = cv2.bitwise_and(img, img, mask=hsvmask)
-    cv2.imshow("ImageColor", hued)
+    if display:
+        cv2.imshow("ImageColor", hued)
    
     getShapes(hued)
    
@@ -159,7 +162,10 @@ def recognize():
     print msg
     ser.write(msg.encode())
 
+
 # START PROGRAMM
+if "-nd" in str(sys.argv):
+    display = false;
 stri = ''
 cameraPort = 0
 camera = cv2.VideoCapture(cameraPort)
@@ -168,13 +174,15 @@ returnValue, img = camera.read()
 height, width, channels = img.shape
 print width, height
 cv2.startWindowThread()
-cv2.namedWindow("Image")
-cv2.namedWindow("ImageColor")
-cv2.namedWindow("Cropped")
-cv2.namedWindow("Resized")
+if display:
+    cv2.namedWindow("Image")
+    cv2.namedWindow("ImageColor")
+    cv2.namedWindow("Cropped")
+    cv2.namedWindow("Resized")
 while True:
     returnValue, img = camera.read()
-    cv2.imshow("Image", img)
+    if display:
+        cv2.imshow("Image", img)
     if ser.inWaiting() > 0:
         data = ser.read()
         stri = stri + data.decode()
