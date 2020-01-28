@@ -66,12 +66,12 @@ const uint8_t OUTS_COUNT = 6;
 const uint8_t INS_COUNT = 7;
 const uint8_t LEDS_COUNT = 2; // at least 1 on 0pin
 
-Button btns[INS_COUNT][OUTS_COUNT]; // 2-6 + 8-12 + A2+A4 (=13) [btn][group]
-Led leds[LEDS_COUNT]; // 13+A5 (=1)
+Button btns[INS_COUNT][OUTS_COUNT]; // 1,2,4,5,6,A4,A5 + 8,9,10,11,A2,A3 (=13) [btn][group]
+Led leds[LEDS_COUNT]; // 0+12 (=1)
 uint16_t analogs[ANALOG_COUNT]; // A0-A1 (=2)
 
-const uint8_t PIN_OUTS[] = {8, 9, 10, 11, A2, A3};
 const uint8_t PIN_INS[] =  {2, 1, 4, 5, 6, A4, A5};
+const uint8_t PIN_OUTS[] = {8, 9, 10, 11, A2, A3};
 const uint8_t PIN_LEDS[] = {0, 12}; // 1-st must be 0 pin
 const uint8_t PIN_STICK_A[] = {A0, A1};
 
@@ -250,9 +250,9 @@ void setup() {
   btns[2][2].ledEnableMode = 3;
   // switches
   btns[0][2].sendMode = 2;
-  btns[6][4].sendMode = 2;
   btns[0][5].sendMode = 2;
   btns[5][5].sendMode = 2;
+  btns[6][4].sendMode = 2;
   btns[6][5].sendMode = 2;
 
   Joystick[0].begin(false);

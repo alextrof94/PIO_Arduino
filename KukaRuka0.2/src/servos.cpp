@@ -12,6 +12,7 @@ int servosPosesNeed[6];
 uint8_t servosLastPos = 255;
 bool servosReady[6] = {1,1,1,1,1,1};
 uint32_t servosSwitchTime[6] = {0,0,0,0,0,0};
+int oldPos = 0;
 int servosPoses[][6] = {
   // delay, servos
   // init 0 - 1
@@ -179,6 +180,9 @@ bool servosAllIsReady() {
   return true;
 }
 
+uint16_t bufServosSyncSpeed[HARDWARE_SERVOS_COUNT];
+float bufServosSyncSpeedForOnePoint = 0;
+int bufServosSyncSpeedMaxLength = 0;
 void servosSetPoses(int pos, uint8_t spd = 2) {
   if (pos >= servosPosCount)
     return;
@@ -187,13 +191,28 @@ void servosSetPoses(int pos, uint8_t spd = 2) {
   PORT_PC.print("SETTING POSE "); PORT_PC.println(pos);
   if (pos == -1) ; // do something service
 
+  // calculate sync speed
+  bufServosSyncSpeedMaxLength = 0;
+  for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++) {
+    if (bufServosSyncSpeedMaxLength < abs(servosPoses[pos][i] - servosPoses[oldPos][i]))
+      bufServosSyncSpeedMaxLength = abs(servosPoses[pos][i] - servosPoses[oldPos][i]);
+  }
+  bufServosSyncSpeedForOnePoint = servosSpeeds[spd] / bufServosSyncSpeedMaxLength;
+  for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++) {
+    bufServosSyncSpeed[i] = abs(servosPoses[pos][i] - servosPoses[oldPos][i]) * bufServosSyncSpeedForOnePoint;
+  }
+
+  // set servos
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++)
     servosPosesNeed[i] = servosPoses[pos][i];
   for (uint8_t i = 0; i < HARDWARE_SERVOS_COUNT; i++){
     servosSwitchTime[i] = millis() + TIME_FOR_ERROR_OUT;
-    Dynamixel.servo(i + 1, servosPoses[pos][i], servosSpeeds[spd]);
+    
+    Dynamixel.servo(i + 1, servosPoses[pos][i], bufServosSyncSpeed[i]);
+    // OLD Dynamixel.servo(i + 1, servosPoses[pos][i], servosSpeeds[spd]);
     delayMicroseconds(SETTINGS_SEND_DELAY);
   }
+  oldPos = pos;
 }
 
 void servosAnim(uint8_t anim, int forceSpeed = -1) {
