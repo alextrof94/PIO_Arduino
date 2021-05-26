@@ -327,9 +327,9 @@ void pageSetState() {
     }
     if (argName == "delay" && arg.length() > 0) {
       message += "delay is setted<br/>";
-      buildLightDelay = arg.toInt();
-      if (buildLightDelay < 1000)
-        buildLightDelay = 1000;
+      buildLightModeDelay = arg.toInt();
+      if (buildLightModeDelay < 1000)
+        buildLightModeDelay = 1000;
       updateLightState();
     }
   }
