@@ -51,7 +51,7 @@ bool modeChanged = true;
 
 #define BUILD_LIGHT_MODE_NORMAL 0
 #define BUILD_LIGHT_MODE_BLINK 1
-uint8_t buildLightMode = LIGHT_MODE_NORMAL;
+uint8_t buildLightMode = BUILD_LIGHT_MODE_NORMAL;
 uint32_t buildLightModeDelay = 1000;
 uint32_t buildLightModeTimer = 0;
 uint8_t buildLightWork_buildLightStateBuf;
