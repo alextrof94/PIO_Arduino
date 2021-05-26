@@ -23,7 +23,7 @@ String hostSsid = DEFAULT_AP_SSID;
 String hostPass = DEFAULT_AP_PASS;
 
 int8_t buildLightState = 0; // 0 - off, 1 - red, 2 - green, 3 - both
-int8_t buildLightStateOld = 0; // 0 - off, 1 - red, 2 - green, 3 - both
+int8_t buildLightStateOld = 0;
 int8_t buildLightId = 0;
 #define EEPROM_BUILD_LIGHT_ID_1 1
 
@@ -49,10 +49,17 @@ char hotspotPass[20] = {'B', 'u', 'i', 'l', 'd', 'L', 'i', 'g', 'h', 't', '\0', 
 uint8_t mode = MODE_START;
 bool modeChanged = true;
 
+#define BUILD_LIGHT_MODE_NORMAL 0
+#define BUILD_LIGHT_MODE_BLINK 1
+uint8_t buildLightMode = LIGHT_MODE_NORMAL;
+uint32_t buildLightModeDelay = 1000;
+uint32_t buildLightModeTimer = 0;
+uint8_t buildLightWork_buildLightStateBuf;
+
 ESP8266WebServer server(80);
 bool wifiConnected = false;
 
-uint8_t relayData[4] = {0xA0, 0, 0, 0xA0}; // 0 - 0xA0 (static), 1 - number of relay (1-4), 2 - state (0/1), 3 - summ of 3 // exmp: 0xA0, 2, 1, 0xA3   
+uint8_t relayData[4] = {0xA0, 0, 0, 0xA0}; // 0 - 0xA0 (static), 1 - number of relay (1-4), 2 - state (0/1), 3 - summ of 0-2 bytes // exmp: 0xA0, 2, 1, 0xA3   
 
 
 void eepromSave() {
@@ -310,6 +317,19 @@ void pageSetState() {
     if (argName == "state" && arg.length() > 0) {
       message += "state is setted<br/>";
       buildLightState = arg.toInt();
+      buildLightWork_buildLightStateBuf = buildLightState;
+      updateLightState();
+    }
+    if (argName == "mode" && arg.length() > 0) {
+      message += "mode is setted<br/>";
+      buildLightMode = arg.toInt();
+      updateLightState();
+    }
+    if (argName == "delay" && arg.length() > 0) {
+      message += "delay is setted<br/>";
+      buildLightDelay = arg.toInt();
+      if (buildLightDelay < 1000)
+        buildLightDelay = 1000;
       updateLightState();
     }
   }
@@ -336,6 +356,19 @@ void changeMode(uint8_t newMode) {
     Serial.print("Mode = ");
     Serial.println(mode);
   #endif
+}
+
+void buildLightWork() {
+  if (buildLightMode == BUILD_LIGHT_MODE_BLINK) {
+    if (millis() >= buildLightModeTimer) {
+      buildLightModeTimer = millis() + buildLightModeDelay;
+      if (buildLightState != 0)
+        buildLightState = 0;
+      else 
+        buildLightState = buildLightWork_buildLightStateBuf;
+      updateLightState();
+    }
+  }
 }
 
 void modeStart() {
@@ -395,6 +428,7 @@ void modeIdle() {
       setLed(!getLed());
     }
   }
+  buildLightWork();
 }
 
 uint32_t modeResetToDefault_PressTimer;
