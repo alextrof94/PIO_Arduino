@@ -56,6 +56,11 @@ char connectToPass[20] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
 #define EEPROM_CONNECT_TO_PASS_20 120
 String botToken = SETTINGS_BOT_TOKEN_DEF;
 String logChatId = SETTINGS_LOG_CHAT_ID;
+#define LOG_LEVEL_NOLOG 0
+#define LOG_LEVEL_REBOOT 1
+#define LOG_LEVEL_WITHOUT_NAMES 2
+#define LOG_LEVEL_FULL 3
+bool logLevel = LOG_LEVEL_REBOOT; // 0 - no logs, 1 - log only reboots, 2 - log without names, 3 - log full
 bool botEnabled = false;
 int timeZone = 3; // +3 Moskow
 #define EEPROM_BOT_TOKEN_60 140
@@ -455,7 +460,8 @@ void buttonWork() {
       } else {
         msgLog += "Шлагбаум открыт.";
       }
-      bot.sendMessage(logChatId, msgLog, "");
+      if (logLevel == LOG_LEVEL_WITHOUT_NAMES || logLevel == LOG_LEVEL_FULL)
+        bot.sendMessage(logChatId, msgLog, "");
     }
   }
 }
@@ -820,10 +826,14 @@ void handleNewMessages(int numNewMessages) {
   Serial.println(numNewMessages);
 
   for (int i = 0; i < numNewMessages; i++) {
-    long timestamp = bot.messages[i].date.toInt() + (timeZone * 3600);
-    String msgLog = "[" + timestampToDate(timestamp) + "] ";
-    msgLog += "@" + bot.messages[i].userName + " (" + bot.messages[i].from_name + "): " + bot.messages[i].text;
-    bot.sendMessage(logChatId, msgLog, "");
+    if (logLevel == LOG_LEVEL_WITHOUT_NAMES || logLevel == LOG_LEVEL_FULL) {
+      long timestamp = bot.messages[i].date.toInt() + (timeZone * 3600);
+      String msgLog = "[" + timestampToDate(timestamp) + "] ";
+      if (logLevel == LOG_LEVEL_FULL)
+        msgLog += "@" + bot.messages[i].userName + " (" + bot.messages[i].from_name + "): ";
+      msgLog += bot.messages[i].text;
+      bot.sendMessage(logChatId, msgLog, "");
+    }
     String chat_id = String(bot.messages[i].chat_id);
     if (!validateWhitelist(bot.messages[i].userName) && !validateAdminlist(bot.messages[i].userName)){
       bot.sendMessage(chat_id, "У Вас нет доступа к шлагбауму. Обратитесь к администратору.", "");
@@ -972,7 +982,8 @@ void modeCheckBot() {
   if (!botEnabled && bot.connected) {
     botEnabled = true;
     String msgLog = "Бот перезагружен";
-    bot.sendMessage(logChatId, msgLog, "");
+    if (logLevel == LOG_LEVEL_REBOOT || logLevel == LOG_LEVEL_WITHOUT_NAMES || logLevel == LOG_LEVEL_FULL)
+      bot.sendMessage(logChatId, msgLog, "");
   }
 
   while(numNewMessages) {
