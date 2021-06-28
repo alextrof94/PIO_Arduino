@@ -92,9 +92,9 @@ X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 const uint8_t adminListLenght = 5;
 String adminList[adminListLenght] = {SETTINGS_ADMIN_1,SETTINGS_ADMIN_2,"","",""};
 
-#define EEPROM_WHITE_LIST_230 270
-const uint8_t whiteListLenght = 15;
-String whiteList[whiteListLenght] = {"","","","","","","","","","","","","","",""};
+#define EEPROM_WHITE_LIST_742 270
+const uint8_t whiteListLenght = 30;
+String whiteList[whiteListLenght] = {"","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""};
 
 String botEnterAdmin = "";
 String userToModify = "";
@@ -122,21 +122,21 @@ String PrepareString(String source){
 
 void eepromWriteWhitelist() {
   String whiteListStr = "";
-  for (int i = 0; i< whiteListLenght; i++) {
-    whiteListStr+=whiteList[i];
+  for (int i = 0; i < whiteListLenght; i++) {
+    whiteListStr += whiteList[i];
   }
   String preparedAdminListStr = PrepareString(whiteListStr);
-  for (uint8_t i = 0; i < 230; i++) {
+  for (uint8_t i = 0; i < 742; i++) {
     if(preparedAdminListStr[i] == 255 || preparedAdminListStr[i] == 0)
-      EEPROM.put(EEPROM_WHITE_LIST_230 + i, " ");
+      EEPROM.put(EEPROM_WHITE_LIST_742 + i, " ");
     else 
-      EEPROM.put(EEPROM_WHITE_LIST_230 + i, preparedAdminListStr[i]);
+      EEPROM.put(EEPROM_WHITE_LIST_742 + i, preparedAdminListStr[i]);
   }
 }
 void eepromWriteAdminlist() {
   String adminListStr = "";
-  for (int i = 0; i< adminListLenght; i++) {
-    adminListStr+=adminList[i];
+  for (int i = 0; i < adminListLenght; i++) {
+    adminListStr += adminList[i];
   }
   String preparedAdminListStr = PrepareString(adminListStr);
   Serial.println(adminListStr);
@@ -172,13 +172,13 @@ void eepromSave() {
 void eepromReadWhitelist() {  
   String whiteListStr = "";
   String word = "";
-  for (uint8_t i = 0; i < 230; i++){
+  for (uint8_t i = 0; i < 742; i++) {
     whiteListStr += " ";
   }
   int counter = 0;
-  for (uint8_t i = 0; i < 230; i++){
-    EEPROM.get(EEPROM_WHITE_LIST_230 + i, whiteListStr[i]);
-    if (whiteListStr[i] == botMsgUserPrefix[0] && i > 0){
+  for (uint8_t i = 0; i < 742; i++) {
+    EEPROM.get(EEPROM_WHITE_LIST_742 + i, whiteListStr[i]);
+    if (whiteListStr[i] == botMsgUserPrefix[0] && i > 0) {
       whiteList[counter] = PrepareString(word);
       word = "";
       counter++;
@@ -503,7 +503,7 @@ int GetLengthOfFilledEEpromWhiteList(){
       }
     }
     String updatedStrList = PrepareString(strList);
-    int result = 230 - updatedStrList.length();
+    int result = 742 - updatedStrList.length();
     return result;
 }
 int GetLengthOfFilledEEpromAdminList(){
@@ -707,7 +707,7 @@ void ProcessWhiteList(String chat_id,  String userName) {
       msg += PrepareString(whiteList[i])+ "\r\n";
     }
   }
-  msg += "\r\nСвободно " + (String)GetLengthOfFilledEEpromWhiteList() + " символов памяти из 230. Максимальное количество пользователей = " + whiteListLenght + "\r\n";
+  msg += "\r\nСвободно " + (String)GetLengthOfFilledEEpromWhiteList() + " символов памяти из 742. Максимальное количество пользователей = " + whiteListLenght + "\r\n";
   msg += botCmdWhitelistAdd + botCmdWhitelistAddDescription;
   msg += botCmdWhitelistRemove + botCmdWhitelistRemoveDescription;
   msg += botCmdWhitelistExit + botCmdWhitelistExitDescription;  
@@ -986,7 +986,7 @@ void modeCheckBot() {
 
 void setup() {
   delay(2000);
-  EEPROM.begin(512);
+  EEPROM.begin(1024);
   Serial.begin(115200);
   Serial.println();
   Serial.println("Shlagbaum-bot");
