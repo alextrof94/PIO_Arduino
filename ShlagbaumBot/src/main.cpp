@@ -126,7 +126,7 @@ void eepromWriteWhitelist() {
     whiteListStr += whiteList[i];
   }
   String preparedAdminListStr = PrepareString(whiteListStr);
-  for (uint8_t i = 0; i < 742; i++) {
+  for (uint16_t i = 0; i < 742; i++) {
     if(preparedAdminListStr[i] == 255 || preparedAdminListStr[i] == 0)
       EEPROM.put(EEPROM_WHITE_LIST_742 + i, " ");
     else 
@@ -135,7 +135,7 @@ void eepromWriteWhitelist() {
 }
 void eepromWriteAdminlist() {
   String adminListStr = "";
-  for (int i = 0; i < adminListLenght; i++) {
+  for (uint8_t i = 0; i < adminListLenght; i++) {
     adminListStr += adminList[i];
   }
   String preparedAdminListStr = PrepareString(adminListStr);
@@ -172,11 +172,11 @@ void eepromSave() {
 void eepromReadWhitelist() {  
   String whiteListStr = "";
   String word = "";
-  for (uint8_t i = 0; i < 742; i++) {
+  for (uint16_t i = 0; i < 742; i++) {
     whiteListStr += " ";
   }
   int counter = 0;
-  for (uint8_t i = 0; i < 742; i++) {
+  for (uint16_t i = 0; i < 742; i++) {
     EEPROM.get(EEPROM_WHITE_LIST_742 + i, whiteListStr[i]);
     if (whiteListStr[i] == botMsgUserPrefix[0] && i > 0) {
       whiteList[counter] = PrepareString(word);
