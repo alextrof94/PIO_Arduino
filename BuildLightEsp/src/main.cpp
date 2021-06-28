@@ -33,7 +33,7 @@ uint8_t serverIp[4] = {192, 168, 4, 1};
 uint8_t serverSubnet[4] = {255, 255, 255, 0};
 #define EEPROM_SERVER_SUBNET_4 16
 
-char endpointAddress[80] = {'1', '9', '2', '.', '1', '6', '8', '.', '1', '.', '2', '/', 'e', 'n', 'd', '.', 'p', 'h', 'p', '\0'};
+char endpointAddress[80] = {'\0'};
 #define EEPROM_ENDPOINT_ADDRESS_80 20
 char connectToSsid[20] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '\0'};
 #define EEPROM_CONNECT_TO_SSID_20 100
@@ -298,6 +298,7 @@ void pageSetServerAddress() {
       serverSubnet[3] = arg.toInt();
     }
   }
+  eepromSave();
   message += httpRedirect;
   server.send(200, "text/html", message);
 }
@@ -382,13 +383,36 @@ void modeStart() {
   changeMode(MODE_IDLE);
 }
 
+void checkEndpoint() {
+  if (strlen(endpointAddress) < 10)
+    return;
+  HTTPClient http;
+  http.begin(endpointAddress);
+  int httpResponseCode = http.GET();      
+  if (httpResponseCode == 200) {
+    String payload = http.getString();
+    unsigned int startPos = payload.indexOf("<body>" + 6);
+    unsigned int endPos = payload.indexOf("</body>");
+    int8_t value = (int8_t)payload.substring(startPos, endPos).toInt();
+    buildLightState = value;
+    updateLightState();
+  }
+  http.end();
+}
+
 uint32_t modeIdle_LedTimer;
 const uint32_t modeIdle_LedDelay = 500;
+uint32_t modeIdle_EndpointCheckTimer;
+const uint32_t modeIdle_EndpointCheckDelay = 30000;
 void modeIdle() {
   server.handleClient();
   wifiConnected = (WiFi.status() == WL_CONNECTED);
   if (wifiConnected) {
     setLed(1);
+    if (millis() > modeIdle_LedTimer) {
+      modeIdle_EndpointCheckTimer = millis() + modeIdle_EndpointCheckDelay;
+      checkEndpoint();
+    }
   } else {
     if (millis() > modeIdle_LedTimer) {
       modeIdle_LedTimer = millis() + modeIdle_LedDelay;
