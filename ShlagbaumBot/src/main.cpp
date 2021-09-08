@@ -85,6 +85,8 @@ uint8_t wifiMode = WIFI_MODE_HOST;
 #define GATE_STATE_OPENED 1
 uint8_t  gate_state = GATE_STATE_CLOSED;
 
+#define TIME_TO_PRESS_BUTTON 2000
+
 String lastUser = "ЗАПУСК";
 X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 
@@ -461,7 +463,6 @@ void buttonWork() {
 }
 
 
-
 bool validateGateStatus(int _command){
   if (_command == gate_state){
     return false;
@@ -497,7 +498,7 @@ void EditEEptomAdminList(){
 
 int GetLengthOfFilledEEpromWhiteList(){
     String strList = ""; 
-    for(int i = 0; i < adminListLenght; i++){
+    for(int i = 0; i < whiteListLenght; i++){
         if (whiteList[i] != ""){
           strList += whiteList[i];
       }
@@ -624,7 +625,7 @@ void ProcessOpen(String chat_id, String from_name) {
     lastUser = from_name;
     digitalWrite(PIN_LED_DOUBLER, 1);
     digitalWrite(PIN_OUT_OPEN, 1);
-    delay(1000);
+    delay(TIME_TO_PRESS_BUTTON);
     digitalWrite(PIN_OUT_OPEN, 0);
     digitalWrite(PIN_LED_DOUBLER, 0);
     msg = botMsgOpened;
@@ -649,13 +650,13 @@ void ProcessClose(String chat_id, String from_name) {
     #ifdef TWO_BUTTON
       digitalWrite(PIN_LED_DOUBLER, 1);
       digitalWrite(PIN_OUT_CLOSE, 1);
-      delay(1000);
+      delay(TIME_TO_PRESS_BUTTON);
       digitalWrite(PIN_OUT_CLOSE, 0);
       digitalWrite(PIN_LED_DOUBLER, 0);
     #else
       digitalWrite(PIN_LED_DOUBLER, 1);
       digitalWrite(PIN_OUT_OPEN, 1);
-      delay(1000);
+      delay(TIME_TO_PRESS_BUTTON);
       digitalWrite(PIN_OUT_OPEN, 0);
       digitalWrite(PIN_LED_DOUBLER, 0);
     #endif
