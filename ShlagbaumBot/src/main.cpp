@@ -12,8 +12,8 @@
 #include <WiFiClientSecure.h>
 #include "RTClib.h"
 #include "Time.h"
-#include "Strings.h"
 #include "Settings.h"
+#include "MyStrings.h"
 #ifdef CUSTOM_RC
   #include <RCSwitch.h>
 #endif
@@ -756,7 +756,7 @@ void ProcessAdminListRemove(String chat_id, String userName){
 }
 
 void ProcessTextCommand(String chat_id, String command){
-  if (command == "" || command[0] != botMsgUserPrefix[0]){
+  if (command == "" || ((botEnterMode == ENTER_MODE_USER_ADD || botEnterMode == ENTER_MODE_ADMIN_ADD) && command[0] != botMsgUserPrefix[0])){
     EraseEnterState();
     bot.sendMessage(chat_id, "Некорректное имя пользователя", "");
     return;

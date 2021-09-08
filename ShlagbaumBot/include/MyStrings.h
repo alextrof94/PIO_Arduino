@@ -1,5 +1,5 @@
-#ifndef _H_STRINGS_
-#define _H_STRINGS_
+#ifndef _H_MYSTRINGS_
+#define _H_MYSTRINGS_
 
 // for multiple using strings
 
